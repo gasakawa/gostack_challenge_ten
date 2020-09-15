@@ -40,10 +40,8 @@ const Dashboard: React.FC = () => {
   ): Promise<void> {
     try {
       Object.assign(food, { available: true });
-      await api.post('/foods', food);
-      const response = await api.get('foods');
-
-      setFoods(response.data);
+      const response = await api.post('/foods', food);
+      setFoods([...foods, response.data]);
     } catch (err) {
       console.log(err);
     }
@@ -56,19 +54,21 @@ const Dashboard: React.FC = () => {
       id: editingFood.id,
       available: editingFood.available,
     });
-    await api.put(`/foods/${editingFood.id}`, food);
+    const response = await api.put(`/foods/${editingFood.id}`, food);
 
-    const response = await api.get('foods');
+    const filterFoods = foods.filter(
+      foodItem => foodItem.id !== response.data.id,
+    );
 
-    setFoods(response.data);
+    setFoods([...filterFoods, response.data]);
   }
 
   async function handleDeleteFood(id: number): Promise<void> {
     await api.delete(`foods/${id}`);
 
-    const response = await api.get('foods');
+    const filterFoods = foods.filter(foodItem => foodItem.id !== id);
 
-    setFoods(response.data);
+    setFoods(filterFoods);
   }
 
   function toggleModal(): void {
